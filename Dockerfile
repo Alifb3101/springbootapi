@@ -1,14 +1,13 @@
-# Use a lightweight OpenJDK base image
-FROM openjdk:17-jdk-slim
-
-# Set working directory inside container
+# Stage 1: Build the JAR
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
 
-# Copy the built JAR into container
-COPY target/demo-0.0.1-SNAPSHOT.jar app.jar
-
-# Expose port 8080 (Spring Boot default)
+# Stage 2: Run the app
+FROM openjdk:17-jdk-slim
+WORKDIR /app
+COPY --from=build /app/target/demo-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8080
-
-# Run the JAR
 ENTRYPOINT ["java", "-jar", "app.jar"]
