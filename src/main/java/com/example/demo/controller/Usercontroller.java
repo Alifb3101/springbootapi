@@ -64,6 +64,7 @@ import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
 
 
+
 @RestController
 @RequestMapping("/users")
 public class Usercontroller {
@@ -82,6 +83,15 @@ public class Usercontroller {
     @PostMapping
     public User createUser(@RequestBody User user) {
         return repo.save(user);
+    }
+    
+    @PutMapping("/{id}")
+    public User updateUser(@PathVariable String id, @RequestBody User updatedUser) {
+        return repo.findById(id).map(user -> {
+            user.setName(updatedUser.getName());
+            user.setEmail(updatedUser.getEmail());
+            return repo.save(user); // save updated data
+        }).orElse(null);
     }
 
     @GetMapping("/{id}")
